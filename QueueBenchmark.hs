@@ -43,24 +43,28 @@ main = do
                    , bench "toList" $ nf toListPS preparedPSQ
                    , bench "keys" $ nf PSQ.keys preparedPSQ
                    , bench "findMin" $ nf (unMaybeBindingPS . PSQ.findMin) preparedPSQ
+                   , bench "size" $ nf PSQ.size preparedPSQ
                    ]
      , bgroup "FT" [ bench "create" $ whnf makeFT randomNumbers
                    , bench "create + toList" $ nf (toListFT . makeFT) randomNumbers
                    , bench "toList" $ nf toListFT preparedFT
                    , bench "keys" $ nf FT.keys preparedFT
                    , bench "findMin" $ nf (unMaybeBindingFT . FT.findMin) preparedFT
+                   , bench "size" $ nf FT.size preparedFT
                    ]
      , bgroup "QL" [ bench "create" $ whnf makeQL randomNumbers
                    , bench "create + toList" $ nf (toListQL . makeQL) randomNumbers
                    , bench "toList" $ nf toListQL preparedQL
                    -- keys does not exist here
                    , bench "findMin" $ nf (unMaybeBindingQL . QL.top) preparedQL
+                   , bench "size" $ nf QL.size preparedQL
                    ]
      , bgroup "GHC" [ bench "create" $ whnf (makeGHC ghcUniques) randomNumbers
                     , bench "create + toList" $ nf (toListGHC . makeGHC ghcUniques) randomNumbers
                     , bench "toList" $ nf toListGHC preparedGHC
                     -- keys does not exist here
                     , bench "findMin" $ nf (unMaybeElemGHC . GHC.findMin) preparedGHC
+                    , bench "size" $ nf GHC.size preparedGHC
                     ]
      ]
   where

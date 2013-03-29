@@ -1,6 +1,8 @@
 {-# LANGUAGE ScopedTypeVariables, TypeOperators #-}
 {-# LANGUAGE FlexibleInstances #-}
 
+module Main (main) where
+
 import Control.Applicative
 import Control.Monad.Random
 import Criterion.Main

@@ -50,6 +50,7 @@ main = do
      ]
   where
     -- PSQueue
+    makePSQ :: [Int] -> PSQ.PSQ Int Int
     makePSQ randomNumbers = PSQ.fromList [ r PSQ.:-> r*2 | r <- randomNumbers ]
 
     toListPS psq = [ (r, p) | r PSQ.:-> p <- PSQ.toList psq ]
@@ -58,6 +59,7 @@ main = do
     unMaybeBindingPS Nothing              = Nothing
 
     -- FingerTree.PSQueue
+    makeFT :: [Int] -> FT.PSQ Int Int
     makeFT randomNumbers = FT.fromList [ r FT.:-> (r*2) | r <- randomNumbers ]
 
     toListFT ft = [ (r, p) | r FT.:-> p <- FT.toList ft ]

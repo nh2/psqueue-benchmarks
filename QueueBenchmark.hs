@@ -4,6 +4,7 @@
 module Main (main) where
 
 import Control.Applicative
+import Control.Monad
 import Control.Monad.Random
 import Criterion.Main
 
@@ -11,6 +12,8 @@ import Data.PSQueue            as PSQ -- PSQueue
 import Data.FingerTree.PSQueue as FT  -- fingertree-psqueue
 import Data.Queue.PQueue       as QL  -- queuelike
 import Data.Queue.Class        as QL
+import GHC.Event.PSQ           as GHC
+import GHC.Event.Unique        as GHC
 
 
 -- Run with: ghc --make -O2 QueueBenchmark.hs && ./QueueBenchmark -o report.html
@@ -25,9 +28,13 @@ main = do
   -- print $ makePSQ randomNumbers
   -- print $ toListPS $ makePSQ randomNumbers
 
+  ghcUniqueSource <- GHC.newSource
+  ghcUniques <- replicateM _N (GHC.newUnique ghcUniqueSource)
+
   let preparedPSQ = makePSQ randomNumbers :: PSQ.PSQ Int Int
       preparedFT  = makeFT randomNumbers  :: FT.PSQ Int Int
       preparedQL  = makeQL randomNumbers  :: QL.PQueue (Int :-> Int)
+      preparedGHC = makeGHC ghcUniques randomNumbers :: GHC.PSQ Int
 
   defaultMain
     [ bgroup "PSQ" [ -- PSQueue stack overflows for _N = 100000
@@ -49,6 +56,12 @@ main = do
                    -- keys does not exist here
                    , bench "findMin" $ nf (unMaybeBindingQL . QL.top) preparedQL
                    ]
+     , bgroup "GHC" [ bench "create" $ whnf (makeGHC ghcUniques) randomNumbers
+                    , bench "create + toList" $ nf (toListGHC . makeGHC ghcUniques) randomNumbers
+                    , bench "toList" $ nf toListGHC preparedGHC
+                    -- keys does not exist here
+                    , bench "findMin" $ nf (unMaybeElemGHC . GHC.findMin) preparedGHC
+                    ]
      ]
   where
     -- PSQueue
@@ -77,3 +90,12 @@ main = do
 
     unMaybeBindingQL (Just (k QL.:-> p)) = Just (k, p)
     unMaybeBindingQL Nothing             = Nothing
+
+    -- GHC.Event.PSQ
+    makeGHC :: [Unique] -> [Int] -> GHC.PSQ Int
+    makeGHC uniques randomNumbers = GHC.fromList [ GHC.E u (fromIntegral r * 2) r | (u, r) <- zip uniques randomNumbers ]
+
+    toListGHC ghc = [ (r, p) | GHC.E { GHC.prio = p , value = r } <- GHC.toList ghc ]
+
+    unMaybeElemGHC (Just (GHC.E { GHC.prio = p , value = r })) = Just (r, p)
+    unMaybeElemGHC Nothing                                     = Nothing

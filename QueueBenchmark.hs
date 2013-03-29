@@ -31,9 +31,9 @@ main = do
   ghcUniqueSource <- GHC.newSource
   ghcUniques <- replicateM _N (GHC.newUnique ghcUniqueSource)
 
-  let preparedPSQ = makePSQ randomNumbers :: PSQ.PSQ Int Int
-      preparedFT  = makeFT randomNumbers  :: FT.PSQ Int Int
-      preparedQL  = makeQL randomNumbers  :: QL.PQueue (Int :-> Int)
+  let preparedPSQ = makePSQ randomNumbers :: PSQ.PSQ Int Double
+      preparedFT  = makeFT randomNumbers  :: FT.PSQ Int Double
+      preparedQL  = makeQL randomNumbers  :: QL.PQueue (Int :-> Double)
       preparedGHC = makeGHC ghcUniques randomNumbers :: GHC.PSQ Int
 
   defaultMain
@@ -65,8 +65,8 @@ main = do
      ]
   where
     -- PSQueue
-    makePSQ :: [Int] -> PSQ.PSQ Int Int
-    makePSQ randomNumbers = PSQ.fromList [ r PSQ.:-> r*2 | r <- randomNumbers ]
+    makePSQ :: [Int] -> PSQ.PSQ Int Double
+    makePSQ randomNumbers = PSQ.fromList [ r PSQ.:-> fromIntegral r*2 | r <- randomNumbers ]
 
     toListPS psq = [ (r, p) | r PSQ.:-> p <- PSQ.toList psq ]
 
@@ -74,8 +74,8 @@ main = do
     unMaybeBindingPS Nothing              = Nothing
 
     -- FingerTree.PSQueue
-    makeFT :: [Int] -> FT.PSQ Int Int
-    makeFT randomNumbers = FT.fromList [ r FT.:-> (r*2) | r <- randomNumbers ]
+    makeFT :: [Int] -> FT.PSQ Int Double
+    makeFT randomNumbers = FT.fromList [ r FT.:-> (fromIntegral r*2) | r <- randomNumbers ]
 
     toListFT ft = [ (r, p) | r FT.:-> p <- FT.toList ft ]
 
@@ -83,8 +83,8 @@ main = do
     unMaybeBindingFT Nothing             = Nothing
 
     -- queuelike PQueue
-    makeQL :: [Int] -> QL.PQueue (Int :-> Int)
-    makeQL randomNumbers = QL.fromList [ r QL.:-> (r*2) | r <- randomNumbers ]
+    makeQL :: [Int] -> QL.PQueue (Int :-> Double)
+    makeQL randomNumbers = QL.fromList [ r QL.:-> (fromIntegral r*2) | r <- randomNumbers ]
 
     toListQL ql = [ (r, p) | r QL.:-> p <- QL.toList ql ]
 

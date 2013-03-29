@@ -1,0 +1,20 @@
+name:                psqueue-benchmarks
+version:             0.1.0.0
+synopsis:            Benchmark of Priority Search Queue implementations
+license:             MIT
+author:              Niklas Hambuechen
+maintainer:          mail@nh2.me
+category:            Benchmarks
+build-type:          Simple
+cabal-version:       >=1.8
+
+executable psqueue-benchmarks
+  main-is: QueueBenchmark.hs
+  build-depends:
+      base               >= 4.5
+    , MonadRandom        >= 0.1
+    , criterion          >= 0.6
+    , PSQueue            == 1.1
+    , fingertree-psqueue == 0.3
+    , queuelike          == 1.0.9
+  ghc-options: -O2
